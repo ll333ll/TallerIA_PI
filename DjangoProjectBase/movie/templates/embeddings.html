@@ -1,0 +1,8 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h2 class="text-light">Embedding aleatorio:</h2>
+  <p><strong class="text-info">{{ movie.title }}</strong></p>
+  <p class="text-light">Primeros 10 valores del vector:</p>
+  <code class="text-warning">{{ embedding }}</code>
+</div>
+{% endblock %}

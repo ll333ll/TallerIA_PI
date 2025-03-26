@@ -9,6 +9,7 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 from openai import OpenAI
+import random
 
 # Cargar API Key de OpenAI
 load_dotenv('openAI.env')
@@ -98,6 +99,7 @@ def cosine_similarity(a, b):
 def recommend_movie(request):
     recommended = None
     similarity_score = 0
+    top_similar_movies = []
 
     if request.method == 'POST':
         prompt = request.POST.get('prompt')
@@ -107,15 +109,16 @@ def recommend_movie(request):
         )
         prompt_emb = np.array(response.data[0].embedding, dtype=np.float32)
 
-        max_sim = -1
-        best_match = None
-
+        similarities = []
         for movie in Movie.objects.all():
             movie_emb = np.frombuffer(movie.emb, dtype=np.float32)
             sim = cosine_similarity(prompt_emb, movie_emb)
-            if sim > max_sim:
-                max_sim = sim
-                best_match = movie
+            similarities.append((sim, movie))
+
+        similarities.sort(reverse=True, key=lambda x: x[0])
+        best_match = similarities[0][1]
+        max_sim = similarities[0][0]
+        top_similar_movies = similarities[:3]  # Top 3 películas similares
 
         recommended = best_match
         similarity_score = max_sim
@@ -123,4 +126,13 @@ def recommend_movie(request):
     return render(request, 'recommend.html', {
         'recommended': recommended,
         'similarity': round(similarity_score, 4),
+        'top_similar_movies': top_similar_movies
+    })
+
+def show_random_embedding(request):
+    random_movie = random.choice(Movie.objects.all())
+    embedding_vector = np.frombuffer(random_movie.emb, dtype=np.float32)
+    return render(request, 'embeddings.html', {
+        'movie': random_movie,
+        'embedding': embedding_vector[:10]  # mostrar los primeros 10 valores para vista
     })
