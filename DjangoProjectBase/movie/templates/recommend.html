@@ -1,0 +1,41 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h1 class="text-light mb-4">Buscador de películas por similitud semántica</h1>
+
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+      <input
+        type="text"
+        name="prompt"
+        class="form-control bg-dark text-light border-secondary"
+        placeholder="Escribe una descripción (ej: película sobre la guerra)"
+      />
+      <button class="btn btn-outline-light" type="submit">Buscar</button>
+    </div>
+  </form>
+
+  {% if recommended %}
+  <div class="card bg-dark text-light border-secondary">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img
+          src="{{ recommended.image.url }}"
+          class="img-fluid rounded-start"
+          alt="Imagen de la película"
+        />
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h2 class="card-title">{{ recommended.title }}</h2>
+          <p class="card-text">{{ recommended.description }}</p>
+          <p class="card-text">
+            <small class="text-muted">Similitud: {{ similarity }}</small>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
